@@ -1,0 +1,61 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+*.pem
+*.key
+
+# Test output and coverage
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+test-results/
+.deepeval_cache/
+
+# Log files
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# DeepEval specific
+.deepeval/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# MyPy cache
+.mypy_cache/
+
+# Distribution archives
+*.tar.gz
+*.zip

@@ -1,0 +1,29 @@
+# Test environment overrides
+# These settings override the base settings.yaml when running tests
+
+logging:
+  level: "DEBUG"
+  log_file: "test_evaluation.log"
+
+llm:
+  default_model: "gpt-3.5-turbo"
+  temperature: 0.0
+  max_tokens: 512
+  timeout: 10
+  max_retries: 1
+  retry_delay: 1
+
+evaluation:
+  passing_threshold: 0.5
+  parallel_execution: false
+  max_workers: 2
+  cache_results: false
+
+deepeval:
+  telemetry_enabled: false
+  verbose_mode: true
+
+output:
+  results_dir: "test-results"
+  format: "json"
+  include_details: true

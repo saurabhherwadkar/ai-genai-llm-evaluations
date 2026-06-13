@@ -1,0 +1,63 @@
+# Application settings configuration
+# This file contains environment-specific settings that can change between deployments
+
+# Logging configuration
+logging:
+  # Available levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  # Log output format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  # Directory for log file output
+  log_dir: "logs"
+  # Log file name
+  log_file: "evaluation.log"
+  # Maximum log file size in bytes before rotation (5MB)
+  max_file_size: 5242880
+  # Number of backup log files to keep
+  backup_count: 3
+
+# LLM provider configuration
+llm:
+  # Default model to use for evaluation
+  default_model: "gpt-4"
+  # Temperature setting for LLM calls
+  temperature: 0.0
+  # Maximum tokens in response
+  max_tokens: 1024
+  # Request timeout in seconds
+  timeout: 30
+  # Number of retries on failure
+  max_retries: 3
+  # Delay between retries in seconds
+  retry_delay: 2
+
+# Evaluation configuration
+evaluation:
+  # Minimum threshold score for passing evaluations (0.0 to 1.0)
+  passing_threshold: 0.7
+  # Whether to run evaluations in parallel
+  parallel_execution: false
+  # Maximum number of parallel workers
+  max_workers: 4
+  # Whether to cache evaluation results
+  cache_results: true
+  # Cache expiry time in seconds (1 hour)
+  cache_ttl: 3600
+
+# DeepEval specific settings
+deepeval:
+  # Whether to send telemetry to Confident AI
+  telemetry_enabled: false
+  # Verbose output during test runs
+  verbose_mode: true
+  # Whether to use local evaluation models
+  use_local_models: false
+
+# Output configuration
+output:
+  # Directory for evaluation results
+  results_dir: "test-results"
+  # Output format: json, csv, html
+  format: "json"
+  # Whether to include detailed metrics in output
+  include_details: true
