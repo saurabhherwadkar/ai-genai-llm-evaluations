@@ -191,6 +191,92 @@ for score in result.metric_scores:
 
 ---
 
+## End-to-End Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          EVALUATION PIPELINE FLOW                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────┐     ┌──────────────────┐     ┌─────────────────────────────┐
+│  config/     │     │  .env            │     │  User Code / Test Suite     │
+│  settings.   │     │  (API keys,      │     │  (pytest or direct import)  │
+│  yaml        │     │   environment)   │     │                             │
+└──────┬───────┘     └────────┬─────────┘     └──────────────┬──────────────┘
+       │                      │                               │
+       ▼                      ▼                               │
+┌──────────────────────────────────┐                          │
+│         ConfigLoader             │                          │
+│  • Reads base YAML settings      │                          │
+│  • Merges env-specific overrides │                          │
+│  • Provides dot-notation access  │                          │
+└──────────────┬───────────────────┘                          │
+               │                                              │
+               ▼                                              ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        EvaluationRunner                                    │
+│  • Initialized with config (threshold, model settings)                    │
+│  • Accepts one or more Evaluator instances via add_evaluators()           │
+│  • Orchestrates run() or run_batch() execution                            │
+└──────────────────────────────────┬───────────────────────────────────────┘
+                                   │
+               ┌───────────────────┼───────────────────┐
+               │                   │                   │
+               ▼                   ▼                   ▼
+┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
+│  EvaluationTest  │ │  EvaluationTest  │ │  EvaluationTest  │
+│  Case #1         │ │  Case #2         │ │  Case #N         │
+│  • input_text    │ │  • input_text    │ │  • input_text    │
+│  • actual_output │ │  • actual_output │ │  • actual_output │
+│  • context (opt) │ │  • context (opt) │ │  • context (opt) │
+└────────┬─────────┘ └────────┬─────────┘ └────────┬─────────┘
+         │                     │                     │
+         └─────────────────────┼─────────────────────┘
+                               │
+                               ▼
+         ┌─────────────────────────────────────────────┐
+         │          For each test case, run all         │
+         │          registered evaluators:              │
+         └─────────────────────┬───────────────────────┘
+                               │
+       ┌───────────┬───────────┼───────────┬───────────┐
+       ▼           ▼           ▼           ▼           ▼
+┌───────────┐┌───────────┐┌───────────┐┌───────────┐┌───────────┐
+│  Answer   ││ Faithful- ││ Hallucin- ││ Toxicity  ││   Bias    │
+│ Relevancy ││   ness    ││  ation    ││ Evaluator ││ Evaluator │
+│ Evaluator ││ Evaluator ││ Evaluator ││           ││           │
+└─────┬─────┘└─────┬─────┘└─────┬─────┘└─────┬─────┘└─────┬─────┘
+      │            │            │            │            │
+      │            │            │            │            │
+      ▼            ▼            ▼            ▼            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    BaseEvaluator.evaluate()                       │
+│  1. Convert EvaluationTestCase → DeepEval LLMTestCase            │
+│  2. Invoke DeepEval metric (calls LLM judge via OpenAI API)      │
+│  3. Build MetricScore (score, passed, threshold, reason)         │
+└──────────────────────────────┬──────────────────────────────────┘
+                               │
+                               ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                      EvaluationResult                              │
+│  • test_case_name: str                                            │
+│  • metric_scores: [MetricScore, MetricScore, ...]                 │
+│  • overall_passed: bool (all metrics must pass)                   │
+│  • duration_seconds: float                                        │
+│  • evaluated_at: datetime (UTC)                                   │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Flow Summary:**
+
+1. **Configuration** — `ConfigLoader` reads `config/settings.yaml`, merges environment overrides, and provides settings (thresholds, model names) to the runner.
+2. **Test Case Creation** — User constructs `EvaluationTestCase` objects containing the LLM input, output, and optional context.
+3. **Runner Setup** — `EvaluationRunner` is initialized with config and loaded with one or more evaluator instances.
+4. **Execution** — For each test case, the runner iterates through all registered evaluators. Each evaluator converts the test case to DeepEval's format and calls the underlying LLM-as-judge metric via the OpenAI API.
+5. **Results** — Individual `MetricScore` objects are collected into an `EvaluationResult`, which computes an overall pass/fail status (all metrics must pass their thresholds).
+
+---
+
 ## Code Quality
 
 **Linting:**
